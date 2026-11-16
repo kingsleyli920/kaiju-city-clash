@@ -1,0 +1,194 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#0c131b">
+  <meta name="description" content="三座城市、六只巨兽。街机闯关、同机双人和练习场，重温城市怪兽摔跤的快乐。">
+  <title>怪兽之城 — 城市就是擂台</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230c131b'/%3E%3Cpath d='M13 49V24l10 5 9-19 9 19 10-5v25z' fill='%23f9b455'/%3E%3Cpath d='M23 36h5v5h-5m13-5h5v5h-5' fill='%230c131b'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="site-shell">
+    <header class="masthead">
+      <a class="brand" href="./" aria-label="怪兽之城首页">
+        <span class="brand-mark">怪</span>
+        <span>怪兽之城<small>KAIJU CITY</small></span>
+      </a>
+      <span class="edition"><i></i> 街机回忆 <b>V0.2</b></span>
+      <div class="header-actions">
+        <button id="soundButton" class="utility" aria-pressed="true" aria-label="切换游戏声音">♪ <span>声音开</span></button>
+        <button id="settingsButton" class="utility" aria-label="游戏设置">⚙ <span>设置</span></button>
+        <button id="helpButton" class="utility" aria-label="查看游戏玩法">? <span>怎么玩</span></button>
+      </div>
+    </header>
+
+    <main>
+      <div class="intro">
+        <div>
+          <div class="eyebrow">A LITTLE NOSTALGIA. A LOT OF DESTRUCTION.</div>
+          <h1>城市，就是你的<span>擂台。</span></h1>
+        </div>
+        <p>三座城市，六只巨兽。<br>把小时候的那个下午，再玩一遍。</p>
+      </div>
+
+      <section class="mode-bar" aria-label="选择游戏模式">
+        <div class="mode-tabs" role="group" aria-label="游戏模式">
+          <button data-mode="arcade" class="mode-tab active" aria-pressed="true"><span class="mode-symbol" aria-hidden="true">▣</span><span>街机闯关<small>1 PLAYER</small></span></button>
+          <button data-mode="versus" class="mode-tab" aria-pressed="false"><span class="mode-symbol" aria-hidden="true">⚔</span><span>同机双人<small>2 PLAYERS</small></span></button>
+          <button data-mode="practice" class="mode-tab" aria-pressed="false"><span class="mode-symbol" aria-hidden="true">◎</span><span>练习场<small>FREE PLAY</small></span></button>
+        </div>
+        <p id="modeDescription" role="status">从夕照街区打到霓虹都心，连续挑战三座城市。</p>
+      </section>
+
+      <div class="arcade-layout">
+        <section class="arena-section" aria-label="怪兽格斗游戏">
+          <div class="cabinet-top">
+            <span class="stage-info"><i class="signal"></i><span id="stageLabel">夕照街区</span><b id="roundProgress">01 / 03</b></span>
+            <span id="recordText">BEST 000000</span>
+          </div>
+          <div class="screen" id="gameScreen">
+            <canvas id="arena" width="768" height="432" tabindex="0" aria-label="城市怪兽格斗。WASD 移动，J 攻击，K 摔投或压制，L 必杀，P 暂停。单人也可用方向键移动。"></canvas>
+            <div class="screen-vignette" aria-hidden="true"></div>
+
+            <div class="game-overlay" id="startOverlay">
+              <span class="overlay-kicker">巨兽即将登场</span>
+              <h2 id="startTitle">这一局，轮到你。</h2>
+              <p id="startHint">打倒对手后，靠近按 <kbd>K</kbd> 压制 3 秒。</p>
+              <button class="primary" id="startButton">进入战斗 <span>↗</span></button>
+              <small>键盘 / 触控均可操作</small>
+            </div>
+
+            <div class="game-overlay hidden" id="pauseOverlay">
+              <span class="overlay-kicker">TAKE A BREATHER</span>
+              <h2 id="pauseTitle">暂停一下。</h2>
+              <p id="pauseHint">休息一下，城市等你回来。</p>
+              <div class="overlay-actions">
+                <button class="primary" id="resumeButton">继续战斗 <span>▶</span></button>
+                <button class="text-button" id="quitButton">返回选角</button>
+              </div>
+            </div>
+
+            <div class="game-overlay hidden" id="resultOverlay">
+              <span class="overlay-kicker" id="resultKicker">THREE. TWO. ONE.</span>
+              <h2 id="resultTitle">城市之王！</h2>
+              <p id="resultReason"></p>
+              <div class="result-stats">
+                <div><strong id="finalScore">0</strong><span>得分</span></div>
+                <div><strong id="finalBuildings">0</strong><span>摧毁建筑</span></div>
+                <div><strong id="finalCombo">0</strong><span>最高连击</span></div>
+                <div><strong id="finalTime">0s</strong><span>战斗用时</span></div>
+              </div>
+              <div class="overlay-actions">
+                <button class="primary" id="againButton">再战一局 <span>↗</span></button>
+                <button class="text-button" id="selectButton">换个角色</button>
+              </div>
+            </div>
+
+            <div class="countdown hidden" id="countdown" aria-live="polite"></div>
+            <div class="pin-banner hidden" id="pinBanner" role="status"></div>
+            <div class="toast hidden" id="toast" role="status"></div>
+          </div>
+          <div class="cabinet-bottom">
+            <span id="battleStatus" role="status">等待出战 · 选好角色，就能开始</span>
+            <div class="cabinet-actions">
+              <button id="practiceResetButton" class="hidden" aria-label="重置练习场">↻ 重置</button>
+              <button id="pauseButton" aria-label="暂停游戏" disabled>Ⅱ 暂停</button>
+            </div>
+          </div>
+
+          <div class="keyboard-guide" aria-label="一号玩家操作">
+            <span class="player-label">1P</span>
+            <span><kbd>W A S D</kbd> 移动</span>
+            <span><kbd>J</kbd> 攻击</span>
+            <span><kbd>K</kbd> 摔投 / 压制</span>
+            <span><kbd>L</kbd> 必杀</span>
+            <span><kbd>P</kbd> 暂停</span>
+          </div>
+          <div class="keyboard-guide p2-guide hidden" id="p2Controls" aria-label="二号玩家操作">
+            <span class="player-label">2P</span>
+            <span><kbd>↑ ↓ ← →</kbd> 移动</span>
+            <span><kbd>,</kbd> 攻击</span>
+            <span><kbd>.</kbd> 摔投 / 压制</span>
+            <span><kbd>/</kbd> 必杀</span>
+            <small>也可用小键盘 1 / 2 / 3</small>
+          </div>
+          <div class="touch-controls" aria-label="手机游戏操作">
+            <div class="dpad">
+              <button data-control="up" class="up" aria-label="向上移动">▲</button>
+              <button data-control="left" class="left" aria-label="向左移动">◀</button>
+              <span class="dpad-center" aria-hidden="true">✦</span>
+              <button data-control="right" class="right" aria-label="向右移动">▶</button>
+              <button data-control="down" class="down" aria-label="向下移动">▼</button>
+            </div>
+            <div class="touch-attacks">
+              <button data-control="punch" class="attack-button"><b>J</b><span>攻击</span></button>
+              <button data-control="grab" class="attack-button grab"><b>K</b><span>摔投 / 压制</span></button>
+              <button data-control="special" class="attack-button special"><b>L</b><span>必杀</span></button>
+            </div>
+          </div>
+          <p class="touch-note">可以同时按住移动与攻击 · 被压制时快速连按 J</p>
+        </section>
+
+        <aside class="roster-panel" aria-labelledby="rosterTitle">
+          <div class="panel-heading"><span class="eyebrow">CHOOSE YOUR MONSTER</span><h2 id="rosterTitle">谁来拆这座城？</h2></div>
+          <div class="roster" id="roster"></div>
+          <div class="fighter-details">
+            <div class="fighter-heading"><h3 id="fighterName">曙光巨人</h3><span id="fighterTag">均衡型</span></div>
+            <p id="fighterDescription"></p>
+            <div class="stats-row">
+              <div class="stat"><span>力量</span><div id="powerStat"></div></div>
+              <div class="stat"><span>速度</span><div id="speedStat"></div></div>
+            </div>
+            <div class="special-note"><span>必杀技</span><b id="specialName"></b><small>能量 ≥ 60 时按 L</small></div>
+          </div>
+          <div class="difficulty-row"><span>对手强度</span><div class="segmented" role="group" aria-label="对手强度"><button data-difficulty="easy" class="active" aria-pressed="true">轻松</button><button data-difficulty="normal" aria-pressed="false">标准</button></div></div>
+          <section id="p2Panel" class="p2-panel hidden" aria-labelledby="p2Title">
+            <div class="p2-heading"><span class="player-label">2P</span><h3 id="p2Title">挑战者入场</h3><span id="p2FighterName">棘背龙</span></div>
+            <div class="roster p2-roster" id="p2Roster"></div>
+            <p>在同一台电脑上对战，一人一套按键。</p>
+          </section>
+        </aside>
+      </div>
+
+      <section class="tips" aria-label="游戏提示">
+        <div><span>01</span><p><b>近身才有力量</b>靠近对手出拳，贴身按 K 把它摔出去。</p></div>
+        <div><span>02</span><p><b>城市也是武器</b>踩踏、攻击和摔落都能拆楼，还能补充能量。</p></div>
+        <div><span>03</span><p><b>压住，数到三</b>血量归零只是倒地。靠近压制，完成读秒才获胜。</p></div>
+      </section>
+    </main>
+    <footer><span>献给在游戏合集里长大的我们。</span><span>《怪兽之王》玩法致敬 · V0.2</span></footer>
+  </div>
+
+  <dialog id="helpDialog" aria-labelledby="helpTitle">
+    <button class="dialog-close" id="closeHelp" aria-label="关闭玩法说明">×</button>
+    <span class="eyebrow">HOW TO PLAY</span>
+    <h2 id="helpTitle">大块头，也要讲技巧。</h2>
+    <div class="help-modes"><p><b>街机闯关</b>依次挑战夕照街区、临海码头和霓虹都心。</p><p><b>同机双人</b>在同一台电脑上，与身边的朋友对战。</p><p><b>练习场</b>不限时间，试连招和必杀；练习对手会恢复，能量补充更快。</p></div>
+    <h3>操作很简单</h3>
+    <p><b>1P：</b>WASD 移动，J 攻击，K 摔投 / 压制，L 必杀。单人模式也可用方向键移动；手机使用画面下方按钮，可以同时按住移动与攻击。</p>
+    <p><b>2P：</b>方向键移动，逗号 / 句号 / 斜杠分别为攻击、摔投和必杀，也可用小键盘 1 / 2 / 3。</p>
+    <h3>最后的三秒，才算赢</h3>
+    <p>血量耗尽后倒地 <b>7 秒</b>。靠近按摔投键，完成 <b>3 秒压制</b> 即可获胜；错过机会，对手会恢复少量血量起身。被压制时，<b>快速连按自己的攻击键 8 次</b> 可以挣脱。</p>
+    <p>命中对手和拆楼都能获得能量，必杀消耗 <b>60 点</b>。对战每局 <b>90 秒</b>，时间耗尽后比较剩余血量比例。点暂停或按 P / Esc 可以休息，切换到其他页面会自动暂停。</p>
+    <button class="primary" id="gotIt">记住了，开打 ↗</button>
+  </dialog>
+
+  <dialog id="settingsDialog" aria-labelledby="settingsTitle">
+    <button class="dialog-close" id="closeSettings" aria-label="关闭游戏设置">×</button>
+    <span class="eyebrow">MAKE YOURSELF AT HOME</span>
+    <h2 id="settingsTitle">调成你的手感。</h2>
+    <div class="setting-field">
+      <label for="volumeSlider"><span>音效音量</span><small>不影响手机或电脑的系统音量</small></label>
+      <input id="volumeSlider" type="range" min="0" max="100" value="55" step="5" aria-label="音效音量">
+      <div class="range-labels" aria-hidden="true"><span>静音</span><span>最大</span></div>
+    </div>
+    <label class="setting-toggle" for="shakeToggle"><span>打击震屏<small>命中与摔投时，画面轻微震动</small></span><input id="shakeToggle" type="checkbox" checked><span class="switch-track" aria-hidden="true"></span></label>
+    <p class="settings-footnote">设置会保存在这台设备上。游戏进行中打开设置，会先暂停战斗。</p>
+  </dialog>
+
+  <script src="art.js"></script>
+  <script src="game.js"></script>
+</body>
+</html>
