@@ -1,0 +1,15 @@
+{
+  "name": "kaiju-city-clash",
+  "version": "0.2.0",
+  "private": true,
+  "description": "A pixel-art city kaiju wrestling game with an arcade campaign, local versus play and training.",
+  "scripts": {
+    "dev": "node scripts/serve.mjs",
+    "start": "node scripts/serve.mjs",
+    "check": "node --check dist/game.js && node --check dist/art.js && node --check scripts/serve.mjs",
+    "test": "node --test tests/*.test.cjs"
+  },
+  "engines": {
+    "node": ">=22"
+  }
+}
